@@ -1,5 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+
+
 # TODO создайте здесь все необходимые формы
 
 
@@ -13,8 +15,29 @@ class TemplateForm(forms.Form):
     ))
     # widget тоже нужен только для отображения в HTML
     my_textarea = forms.CharField(widget=forms.Textarea)
+    email = forms.EmailField()
+    password = forms.CharField(widget=forms.PasswordInput)
+    data = forms.DateField()
+    number = forms.IntegerField()
+    checkbox = forms.BooleanField(required=True)
 
-    # TODO Опишите поля (поле для email, пароля, даты, целого числа, переключателя) и их параметры для вашего шаблона формы
+
+class CustomUserCreationForm(UserCreationForm):
+    """
+    Для этого в forms.py приложения app создадим CustomUserCreationForm
+    и отнаследуемся от UserCreationForm для того, чтобы добавить ещё одно поле для
+    проверок в тот функционал, что уже есть по умолчанию в Django.
+    """
+    email = forms.EmailField(widget=forms.EmailInput)
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data["email"]
+        if commit:
+            user.save()
+            if hasattr(self, "save_m2m"):
+                self.save_m2m()
+        return user
 
 
 """
